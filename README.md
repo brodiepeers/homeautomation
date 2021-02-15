@@ -12,6 +12,7 @@ What I hope to do on this Github site is to share what I have done along with th
 99% of what I have been able to build would not have been possible if it wasn't for the work of others and by them sharing their knowledge and work. I hope to continue this culture of sharing my own ideas and work so that it may help others like me.  
 
 ## Overview
+vvvvv
 
 ## Logical Integraiton View
 Below is a diagram of the data flows and various platforms (internal and external that I). For each platform i will provide some explanation of what it does.
