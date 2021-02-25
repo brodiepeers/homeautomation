@@ -1,0 +1,53 @@
+# HASS automations.yaml Extract for Lux Power Components
+
+- id: '1610142964536'
+  alias: Lux Battery Charge to 100%
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.lux_charging_to_100
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.lux_charging_to_90
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.lux_charging_to_80
+  mode: single
+- id: '1610142964537'
+  alias: Lux Battery Charge to 90%
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.lux_charging_to_90
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.lux_charging_to_100
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.lux_charging_to_80
+  mode: single
+- id: '1610142964538'
+  alias: Lux Battery Charge to 80%
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.lux_charging_to_80
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.lux_charging_to_100
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.lux_charging_to_90
+  mode: single

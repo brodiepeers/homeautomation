@@ -1,0 +1,245 @@
+# HASS configuration.yaml Extract for Lux Power Components
+
+############################################################################
+# Setup Input Booleans
+input_boolean:
+  ######################################
+  # For LuxPower Inverter
+  lux_charging_to_70:
+    name: Charge House Battery to 70%
+    initial: off
+    icon: mdi:battery-charging-70
+  
+  lux_charging_to_80:
+    name: Charge House Battery to 80%
+    initial: off
+    icon: mdi:battery-charging-80
+  
+  lux_charging_to_90:
+    name: Charge House Battery to 90%
+    initial: off
+    icon: mdi:battery-charging-90
+    
+  lux_charging_to_100:
+    name: Charge House Battery to 100%
+    initial: off
+    icon: mdi:battery-charging-100
+ ######################################
+############################################################################
+
+
+############################################################################
+# Switches
+switch:
+  ######################################
+  # For LuxPower Inverter
+  - platform: mqtt
+    name: "Grid Charge Inverter Battery"
+    state_topic: "octolux/cmd/ac_charge"
+    command_topic: "octolux/cmd/ac_charge"
+    payload_on: "true"
+    payload_off: "false"
+    retain: false
+
+  - platform: mqtt
+    name: "Inverter Battery Discharge"
+    state_topic: "octolux/hold/65"
+    command_topic: "octolux/cmd/discharge_pct"
+    payload_on: 100
+    payload_off: 0
+    retain: false
+
+  - platform: mqtt
+    name: "Force Battery Discharge to Grid"
+    state_topic: "octolux/cmd/forced_discharge"
+    command_topic: "octolux/cmd/forced_discharge"
+    payload_on: "true"
+    payload_off: "false"
+    retain: false
+  ######################################
+############################################################################
+
+
+############################################################################
+# Sensors
+sensor:
+######################################
+  # For LuxPower Inverter via Octolux
+  - platform: mqtt
+    name: "Raw Inverter Status"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["status"] }}'
+
+  - platform: template
+    sensors:
+      inverter_state:
+        friendly_name: "Inverter Status"
+        value_template: '{% if is_state("sensor.raw_inverter_status", "16") %}Battery Discharging
+                         {% elif is_state("sensor.raw_inverter_status", "32") %}Battery Charging via Grid
+                         {% elif is_state("sensor.raw_inverter_status", "12") %}Battery Charging via Solar
+                         {% elif is_state("sensor.raw_inverter_status", "0") %}Idle
+                         {% elif is_state("sensor.raw_inverter_status", "20") %}Solar + Battery Discharge
+                         {% endif %}'
+
+  - platform: mqtt
+    name: "Battey SoC (%)"
+    state_topic: "octolux/inputs/1"
+    unit_of_measurement: "%"
+    value_template: '{{ value_json["soc"] }}'
+
+  - platform: template
+    sensors:
+      battery_soc_kwh:
+        friendly_name: "Battery SoC (kWh)"
+        unit_of_measurement: 'kWh'
+        value_template: "{{ (states('sensor.battey_soc')|float / 100) * 12 }}"
+
+  - platform: mqtt
+    name: "Current Inverter Export Power"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_inv"] }}'
+    unit_of_measurement: "watts"
+    
+  - platform: mqtt
+    name: "Current Solar Power 2"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_pv_2"] }}'
+    unit_of_measurement: "watts"
+
+  - platform: mqtt
+    name: "Current Solar Power 1"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_pv_1"] }}'
+    unit_of_measurement: "watts"
+    
+  - platform: mqtt
+    name: "Current Grid Import (Inverter)"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_to_user"] }}'
+    unit_of_measurement: "watts"
+
+  - platform: mqtt
+    name: "Current Grid Export (Inverter)"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_to_grid"] }}'
+    unit_of_measurement: "watts"
+
+  - platform: mqtt
+    name: "Total Solar Power 2 Today"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["e_pv_2_day"] }}'
+    unit_of_measurement: "kWh"
+
+  - platform: mqtt
+    name: "Total Solar Power 1 Today"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["e_pv_1_day"] }}'
+    unit_of_measurement: "kWh"
+
+  - platform: mqtt
+    name: "Current Grid Import (Inverter)"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["e_to_user_day"] }}'
+    unit_of_measurement: "kWh"
+
+  - platform: mqtt
+    name: "Total Grid Export Today (Inverter)"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["e_to_grid_day"] }}'
+    unit_of_measurement: "kWh"
+
+  - platform: mqtt
+    name: "Battery Status Inv"
+    state_topic: "octolux/inputs/3"
+    value_template: '{{ value_json["bat_status_inv"] }}'
+
+  - platform: mqtt
+    name: "Battery Discharge Power"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_discharge"] }}'
+    unit_of_measurement: "watts"
+
+  - platform: mqtt
+    name: "Battery Charge Power"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_charge"] }}'
+    unit_of_measurement: "watts"
+
+  - platform: mqtt
+    name: "Inverter Internal Temperature"
+    state_topic: "octolux/inputs/2"
+    value_template: '{{ value_json["t_inner"] }}'
+    unit_of_measurement: "Celsius"
+
+  - platform: mqtt
+    name: "Inverter Rad 1 Temperature"
+    state_topic: "octolux/inputs/2"
+    value_template: '{{ value_json["t_rad_1"] }}'
+    unit_of_measurement: "Celsius"
+
+  - platform: mqtt
+    name: "Inverter Rad 2 Temperature"
+    state_topic: "octolux/inputs/2"
+    value_template: '{{ value_json["t_rad_2"] }}'
+    unit_of_measurement: "Celsius"
+
+  - platform: mqtt
+    name: "Total Energy Used Today (Inverter)"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["e_to_user_day"] }}'
+    unit_of_measurement: "kWh"
+
+  - platform: mqtt
+    name: "Total Battery Charged Today"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["e_chg_day"] }}'
+    unit_of_measurement: "kWh"
+
+  - platform: mqtt
+    name: "Total Solar Today"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["e_pv_day"] }}'
+    unit_of_measurement: "kWh"
+
+  - platform: mqtt
+    name: "Current Solar Generation"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_pv"] }}'
+    unit_of_measurement: "watts"
+
+  - platform: mqtt
+    name: "Current Grid Import (Inverter)"
+    state_topic: "octolux/inputs/1"
+    value_template: '{{ value_json["p_to_user"] }}'
+    unit_of_measurement: "watts"
+
+  - platform: mqtt
+    name: "Inverter Register 21 Status"
+    state_topic: "octolux/hold/21"
+
+  - platform: mqtt
+    name: "Inverter Register 65 Status"
+    state_topic: "octolux/hold/65"
+  ######################################
+############################################################################
+
+
+############################################################################
+# Lights
+light:
+  ######################################
+  # Button and Dial for Changing the Battery Discharge Rate
+  - platform: mqtt
+    name: "Inverter Battery Discharge Rate"
+    command_topic: "octolux/cmd/discharge_pct"
+    state_topic: "octolux/hold/65"
+    brightness_command_topic: "octolux/cmd/discharge_pct"
+    brightness_state_topic: "octolux/hold/65"
+    brightness_scale: 100
+    on_command_type: "brightness"
+    brightness_value_template: "{{value_json.Dimmer}}"
+    payload_on: 100
+    payload_off: 0
+    retain: false
+  ######################################
+############################################################################
