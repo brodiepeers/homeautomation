@@ -3,10 +3,12 @@
 ###################################################################
 # This script reboots the LuxPower Data Logger via the UI
 # Requirements\ Dependancies
-# 	- sudo apt-get install firefox-esr
+# 	- apt-get install firefox-esr
+#	- mkdir /root/webdrivers/geckodriver
+#	- cd /root/webdrivers/geckodriver (note, if this directory is changed then ensure that it is reflected in the config.ini file)
 # 	- wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
 # 	- tar -xvf geckodriver-v0.30.0-linux64.tar.gz
-# 	- sudo python3 -m pip install -U selenium
+# 	- python3 -m pip install -U selenium
 ###################################################################
 ###################################################################
 # Version
