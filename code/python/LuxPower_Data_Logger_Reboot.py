@@ -2,18 +2,23 @@
 
 ###################################################################
 # This script reboots the LuxPower Data Logger via the UI
-# Requirements\ Dependencies
-# 	- apt-get install firefox-esr
-# 	- python3 -m pip install -U selenium
-#	- mkdir webdrivers
-#	- cd webdrivers
-# 	- wget https://github.com/mozilla/geckodriver/releases/download/v0.29.0/geckodriver-v0.29.0-linux64.tar.gz
-# 	- tar -xvf geckodriver-v0.29.0-linux64.tar.gz
+# Requirements\ Dependancies
+# 	- sudo apt-get install firefox-esr
+# 	- wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
+# 	- tar -xvf geckodriver-v0.30.0-linux64.tar.gz
+# 	- sudo python3 -m pip install -U selenium
 ###################################################################
+###################################################################
+# Version
+# 11/02/21 - First baselined version
+# 18/02/21 - Removed ENV from config.ini file
+# 06/01/22 - Update Selenium command to use Service Object. Know issue that the output to the Gekolog file is now not used.
+##################################################################
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 import configparser
 from time import sleep
 from datetime import date, datetime, timedelta
@@ -43,17 +48,10 @@ thisLogFile.write('Start of Processing @: ' + executionTimeStamp.strftime('%Y-%m
 # Set Driver Options to run Headless
 options = webdriver.FirefoxOptions()
 options.headless = True
-options.add_argument("--window-size=768,773")
-options.add_argument('--ignore-certificate-errors')
-options.add_argument('--allow-running-insecure-content')
-options.add_argument("--disable-extensions")
-options.add_argument("--proxy-server='direct://'")
-options.add_argument("--proxy-bypass-list=*")
-options.add_argument("--start-maximized")
-options.add_argument('--disable-gpu')
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument('--no-sandbox')
-driver=webdriver.Firefox(executable_path=str(gekoDriver),service_log_path=GEKO_LOG_FILE,options=options)
+
+# Update command to use Service Object due to depricaiton
+s = Service(str(gekoDriver))
+driver=webdriver.Firefox(service=s,options=options)
 
 try:
 	# Need to call the website twice in order to login
@@ -65,7 +63,7 @@ try:
 
 	# Click the reset button on the page
 	driver.find_element(By.CSS_SELECTOR, "form:nth-child(9) .btn").click()
-	thisLogFile.write('# Data Logger Reboot request made. \n')
+	thisLogFile.write('# Data Logger Reboot reqeust made. \n')
 
 	# Wait 10 seconds for the logger to reboot
 	sleep(10)
